@@ -1,7 +1,7 @@
 from model_loader import model
 import torch
 from PIL import Image
-import io
+import time
 from utils import preprocess, get_food_class
 
 """
@@ -14,9 +14,9 @@ from utils import preprocess, get_food_class
 7. return the python dict, fast api will handle it
 """
 
-def predict_image(input_bytes):
-    #1. Convert the bytes in PIL
-    pil_image = Image.open(io.BytesIO(input_bytes))
+def predict_image(pil_image, request_id):
+    #1. measure latency
+    start = time.perf_counter()
 
     #2. preprocess the image
     image = preprocess(pil_image)
@@ -27,6 +27,9 @@ def predict_image(input_bytes):
     #4. feed input to model and get prediction
     with torch.inference_mode():
         pred = model(image)
+
+    #measure latency
+    latency = (time.perf_counter() - start)*1000
 
     #5. Squeeze the extra dim (batch dim) from pred.
     pred = torch.squeeze(input=pred, dim=0)
@@ -44,9 +47,21 @@ def predict_image(input_bytes):
     #9. Fetch top K food class names
     topk_names = get_food_class(topk_index)
 
-    #10. make dict {"label": "confidence"}
-    result_dict = {topk_names[i] : topk_probs[i] for i in range(len(topk_probs))}
+    #10. make top K list 
+    topK_list = []
+    for i in range(len(topk_probs)):
+        topK_list.append({"label": topk_names[i], "confidence": topk_probs[i]})
+
+    #Construct full response
+    response = {
+        "resquest_id": request_id,
+        "prediction": topk_names[0],
+        "confidence": topk_probs[0],
+        "latency": round(latency, 2),
+        "topK": topK_list
+    }
+
 
     #11. return the dict, FASTAPI will handle it
-    return result_dict
+    return response
 #=====================================================
