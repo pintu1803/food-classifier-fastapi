@@ -11,4 +11,4 @@ class PredictionResponse(BaseModel):
     prediction: str
     confidence: float
     latency: float
-    top3: list[PredictionItem]
+    topK: list[PredictionItem]

@@ -1,11 +1,13 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from inference import predict_image
+from app.inference import predict_image
 from app.schema import PredictionResponse
 from app.validators import validate_image, validate_size
 from PIL import UnidentifiedImageError, Image
 import io 
 import uuid
 from fastapi import Request
+from fastapi.concurrency import run_in_threadpool
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, UploadFile, File, HTTPException
 
 
 app = FastAPI(title="Indian Food Classifier API",
@@ -23,10 +25,16 @@ def health():
         "status" : "healthy"
     }
 
+
+#add cors middleware to connect frontend with backend
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
+                   allow_methods=["*"],
+                   allow_headers=["*"],)
+
 #add middleware to add request id to the request
 @app.middleware("http")
 async def request_id_middleware(request: Request, call_next):
-    request_id = uuid.uuid4()
+    request_id = str(uuid.uuid4())
 
     request.state.request_id = request_id
 
@@ -60,7 +68,20 @@ async def predict(request: Request, file : UploadFile = File(...)):
     request_id = request.state.request_id
 
     #pass input to model for inference
-    result = predict_image(image_bytes, request_id)
+    #use thread pool
+    #manages concurrent requests
+    #wrap it inside try-catch to handle 500 error
+    try:
+        result = await run_in_threadpool(
+            predict_image, 
+            pil_image, 
+            request_id
+            )
+    except Exception as e:
+        raise HTTPException (
+            status_code=500,
+            detail="Internal Server Error Occurred"
+        )
 
     #return response
     return result

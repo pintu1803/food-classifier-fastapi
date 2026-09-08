@@ -1,5 +1,5 @@
 from torchvision import transforms
-from config import IMAGE
+from app.config import IMAGE
 
 def myLog(title):
     margin = "*" * ((78 - len(title))//2)

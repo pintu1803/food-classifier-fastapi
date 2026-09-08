@@ -1,8 +1,8 @@
 from torchvision.models import resnet18
 from torchvision import transforms
-from utils import myLog
+from app.utils import myLog
 import sys, os, torch
-from config import PATH, IMAGE
+from app.config import PATH, IMAGE
 
 #=====================================================
 torch.hub.set_dir(PATH.DOWNLOAD_MODEL_PATH)

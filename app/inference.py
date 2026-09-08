@@ -1,8 +1,8 @@
-from model_loader import model
+from app.model_loader import model
 import torch
 from PIL import Image
 import time
-from utils import preprocess, get_food_class
+from app.utils import preprocess, get_food_class
 
 """
 1. Load the model only once on startup and store it in cache and use for all the inferences. 
@@ -54,7 +54,7 @@ def predict_image(pil_image, request_id):
 
     #Construct full response
     response = {
-        "resquest_id": request_id,
+        "request_id": request_id,
         "prediction": topk_names[0],
         "confidence": topk_probs[0],
         "latency": round(latency, 2),
