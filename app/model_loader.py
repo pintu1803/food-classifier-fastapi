@@ -30,7 +30,7 @@ model.eval()
 #=====================================================
 
 myLog("Checkpoint found. Using Model for Inference")
-checkpoint = torch.load(best_model_load_path)
+checkpoint = torch.load(best_model_load_path, map_location="cpu")
 model.load_state_dict(checkpoint["model_state_dict"])
 myLog("MODEL LOADED")
 #=====================================================
