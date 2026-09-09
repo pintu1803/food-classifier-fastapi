@@ -2,7 +2,7 @@ from torchvision.models import resnet18
 from torchvision import transforms
 from app.utils import myLog
 import sys, os, torch
-from config import PATH, IMAGE
+from app.config import PATH, IMAGE
 
 #=====================================================
 from huggingface_hub import hf_hub_download
