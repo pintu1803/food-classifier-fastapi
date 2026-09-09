@@ -5,15 +5,29 @@ import sys, os, torch
 from app.config import PATH, IMAGE
 
 #=====================================================
-torch.hub.set_dir(PATH.DOWNLOAD_MODEL_PATH)
+from huggingface_hub import hf_hub_download
+#=====================================================
+#THIS IS NEEDED FOR RENDER DEPLOYMENT
+#=====================================================
+best_model_load_path = hf_hub_download(
+    repo_id="pintusaini2979/resnet18-food-classifier",
+    filename="best_val_acc_model_2.pth"
+)
+#=====================================================
+
+# torch.hub.set_dir(PATH.DOWNLOAD_MODEL_PATH)
 model = resnet18(weights=None)
 model.fc = torch.nn.Linear(model.fc.in_features, IMAGE.classes)
 model.eval()
 
-best_model_load_path = PATH.CHECKPOINT_PATH_FOR_LOAD
-if not os.path.exists(best_model_load_path):
-    myLog("No checkpoint found. Can't predict.")
-    sys.exit(1)
+#=====================================================
+#THIS IS NEEDED FOR LOCAL INFERENCE
+#=====================================================
+# best_model_load_path = PATH.CHECKPOINT_PATH_FOR_LOAD
+# if not os.path.exists(best_model_load_path):
+#     myLog("No checkpoint found. Can't predict.")
+#     sys.exit(1)
+#=====================================================
 
 myLog("Checkpoint found. Using Model for Inference")
 checkpoint = torch.load(best_model_load_path)
