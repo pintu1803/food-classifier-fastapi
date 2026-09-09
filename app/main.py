@@ -29,6 +29,7 @@ def health():
 ENV = os.getenv("ENV", "development")
 
 
+
 if ENV == "production":
     origins = [
         "https://foodplateai.vercel.app"
