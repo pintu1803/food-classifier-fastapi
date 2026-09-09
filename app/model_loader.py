@@ -31,7 +31,7 @@ model.eval()
 
 myLog("Checkpoint found. Using Model for Inference")
 checkpoint = torch.load(best_model_load_path, map_location="cpu")
-model.load_state_dict(checkpoint["model_state_dict"])
+model.load_state_dict(checkpoint)
 myLog("MODEL LOADED")
 #=====================================================
 #To save memory on render, delete checkpoint after dict loading

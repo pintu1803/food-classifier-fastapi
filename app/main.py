@@ -2,7 +2,7 @@ from app.inference import predict_image
 from app.schema import PredictionResponse
 from app.validators import validate_image, validate_size
 from PIL import UnidentifiedImageError, Image
-import io 
+import io, os
 import uuid
 from fastapi import Request
 from fastapi.concurrency import run_in_threadpool
@@ -26,8 +26,21 @@ def health():
     }
 
 
+ENV = os.getenv("ENV", "development")
+
+
+if ENV == "production":
+    origins = [
+        "https://foodplateai.vercel.app"
+    ]
+else:
+    origins = [
+        "http://localhost:5173"
+    ]
+
+print("Origin=", origins)
 #add cors middleware to connect frontend with backend
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
+app.add_middleware(CORSMiddleware, allow_origins=origins,
                    allow_methods=["*"],
                    allow_headers=["*"],)
 
