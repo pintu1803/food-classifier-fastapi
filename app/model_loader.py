@@ -2,7 +2,7 @@ from torchvision.models import resnet18
 from torchvision import transforms
 from app.utils import myLog
 import sys, os, torch
-from app.config import PATH, IMAGE
+from config import PATH, IMAGE
 
 #=====================================================
 from huggingface_hub import hf_hub_download
@@ -11,7 +11,7 @@ from huggingface_hub import hf_hub_download
 #=====================================================
 best_model_load_path = hf_hub_download(
     repo_id="pintusaini2979/resnet18-food-classifier",
-    filename="best_val_acc_model_2.pth"
+    filename="resnet18_food_deploy.pth"
 )
 #=====================================================
 
@@ -34,3 +34,8 @@ checkpoint = torch.load(best_model_load_path, map_location="cpu")
 model.load_state_dict(checkpoint["model_state_dict"])
 myLog("MODEL LOADED")
 #=====================================================
+#To save memory on render, delete checkpoint after dict loading
+del checkpoint
+import gc
+gc.collect()
+
