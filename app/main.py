@@ -1,4 +1,4 @@
-from app.inference import predict_image
+from app.inference import predict_image, ModelNotLoadedError
 from app.schema import PredictionResponse
 from app.validators import validate_image, validate_size
 from PIL import UnidentifiedImageError, Image
