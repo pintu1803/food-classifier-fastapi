@@ -27,50 +27,51 @@ def ensure_model_load():
     if model is None:
         raise ModelNotLoadedError("Checkpoint not found.")
 
-def latency(start, i):
-    print("Latency after step-",i," = ", (time.perf_counter() - start)*1000)
+def print_latency(start, i):
+    lat = round( (time.perf_counter() - start)*1000, 2)
+    print("Inference Latency after step-",i," = ", lat)
 
 def predict_image(pil_image, request_id):
     start = time.perf_counter()
 
     #ensure model is correctly loaded
     ensure_model_load()
-    latency(start, 1)
+    print_latency(start, 1)
 
     #1. measure latency
     start = time.perf_counter()
 
     #2. preprocess the image
     image = preprocess(pil_image)
-    latency(start, 2)
+    print_latency(start, 2)
 
     #3. add the extra dim for making a batch of size 1
     image = torch.unsqueeze(input=image, dim=0)
-    latency(start, 3)
+    print_latency(start, 3)
 
     #4. feed input to model and get prediction
     with torch.inference_mode():
         pred = model(image)
-    latency(start, 4)
+    print_latency(start, 4)
     #measure latency
     latency = (time.perf_counter() - start)*1000
 
     #5. Squeeze the extra dim (batch dim) from pred.
     pred = torch.squeeze(input=pred, dim=0)
-    latency(start, 5)
+    print_latency(start, 5)
 
     #6. convert raw logits into probabilities
     prob = torch.softmax(input=pred, dim=0)
-    latency(start, 6)
+    print_latency(start, 6)
 
     #7.Fetch top K prob
     topk_probs, topk_index = torch.topk(prob, k=3)
-    latency(start, 7)
+    print_latency(start, 7)
 
     #8. convert tensors to list
     topk_probs = topk_probs.tolist()
     topk_index = topk_index.tolist()
-    latency(start, 8)
+    print_latency(start, 8)
 
     #9. Fetch top K food class names
     topk_names = get_food_class(topk_index)
@@ -80,7 +81,7 @@ def predict_image(pil_image, request_id):
     for i in range(len(topk_probs)):
         topK_list.append({"label": topk_names[i], "confidence": topk_probs[i]})
 
-    latency(start, 9)
+    print_latency(start, 9)
 
     #Construct full response
     response = {
@@ -91,7 +92,7 @@ def predict_image(pil_image, request_id):
         "topK": topK_list
     }
 
-    latency(start, 10)
+    print_latency(start, 10)
 
     #11. return the dict, FASTAPI will handle it
     return response

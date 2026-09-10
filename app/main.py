@@ -67,7 +67,8 @@ async def request_id_middleware(request: Request, call_next):
     return response
 
 def latency(start, i):
-    print("API Latency after step-",i," = ", (time.perf_counter() - start)*1000)
+    lat = round( (time.perf_counter() - start)*1000, 2)
+    print("API Latency after step-",i," = ", lat)
 
 
 @app.post("/predict", response_model=PredictionResponse)
@@ -116,7 +117,8 @@ async def predict(request: Request, file : UploadFile = File(...)):
     except Exception as e:
         raise HTTPException (
             status_code=500,
-            detail="Internal Server Error Occurred"
+            detail=str(e)
+            # detail="Internal Server Error Occurred"
         )
     latency(start, 5)
     #return response
