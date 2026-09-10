@@ -10,7 +10,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-
+from time import time 
 app = FastAPI(title="Indian Food Classifier API",
               version="1.0")
 
@@ -66,13 +66,20 @@ async def request_id_middleware(request: Request, call_next):
 
     return response
 
+def latency(start, i):
+    print("API Latency after step-",i," = ", (time.perf_counter() - start)*1000)
+
+
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(request: Request, file : UploadFile = File(...)):
+    start = time.perf_counter()
     #validate input type
     await validate_image(file)
+    latency(start, 1)
 
     #convert bytes into image
     image_bytes = await file.read()
+    latency(start, 2)
 
     #open with care
     try:
@@ -83,11 +90,13 @@ async def predict(request: Request, file : UploadFile = File(...)):
             detail="Invalid image file"
         )   
 
+    latency(start, 3)
     #validate image size once type is confirmed
     await validate_size(image_bytes)
 
     #fetch request-id from the Request
     request_id = request.state.request_id
+    latency(start, 4)
 
     #pass input to model for inference
     #use thread pool
@@ -109,7 +118,7 @@ async def predict(request: Request, file : UploadFile = File(...)):
             status_code=500,
             detail="Internal Server Error Occurred"
         )
-
+    latency(start, 5)
     #return response
     return result
 
