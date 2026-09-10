@@ -25,10 +25,8 @@ def health():
         "status" : "healthy"
     }
 
-
+#=====================================
 ENV = os.getenv("ENV", "development")
-
-
 
 if ENV == "production":
     origins = [
@@ -39,7 +37,9 @@ else:
         "http://localhost:5173"
     ]
 
-print("Origin=", origins)
+print("Origin of the backend server : ", origins)
+#======================================
+
 #add cors middleware to connect frontend with backend
 app.add_middleware(CORSMiddleware, allow_origins=origins,
                    allow_methods=["*"],
@@ -91,6 +91,11 @@ async def predict(request: Request, file : UploadFile = File(...)):
             pil_image, 
             request_id
             )
+    except ModelNotLoadedError as e:
+        raise HTTPException(
+            status_code=503,
+            detail="Model is not available on this deployment"
+        )
     except Exception as e:
         raise HTTPException (
             status_code=500,

@@ -1,4 +1,4 @@
-from app.model_loader import model
+from app.model_loader import give_loaded_model
 import torch
 from PIL import Image
 import time
@@ -14,7 +14,21 @@ from app.utils import preprocess, get_food_class
 7. return the python dict, fast api will handle it
 """
 
+model = give_loaded_model()
+
+class ModelNotLoadedError(Exception):
+    pass
+
+def ensure_model_load():
+    global model
+    if model is None:
+        raise ModelNotLoadedError("Checkpoint not found.")
+
+
 def predict_image(pil_image, request_id):
+    #ensure model is correctly loaded
+    ensure_model_load()
+
     #1. measure latency
     start = time.perf_counter()
 
