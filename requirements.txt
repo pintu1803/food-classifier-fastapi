@@ -8,4 +8,6 @@ pillow
 numpy
 
 python-multipart
-huggingface_hub
+# huggingface_hub
+
+psutil
