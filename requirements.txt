@@ -1,9 +1,10 @@
 fastapi
 uvicorn[standard]
 
+python-3.13.14
+
 torch==2.6.0
 torchvision==0.21.0
-python-3.13.14
 
 pillow
 numpy
