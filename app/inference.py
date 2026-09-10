@@ -14,13 +14,17 @@ from app.utils import preprocess, get_food_class
 7. return the python dict, fast api will handle it
 """
 
-model = give_loaded_model()
+model = None
 
 class ModelNotLoadedError(Exception):
     pass
 
 def ensure_model_load():
     global model
+
+    if model is None:
+        model = give_loaded_model()
+
     if model is None:
         raise ModelNotLoadedError("Checkpoint not found.")
 
