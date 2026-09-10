@@ -10,7 +10,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-from time import time 
+import time 
 app = FastAPI(title="Indian Food Classifier API",
               version="1.0")
 
