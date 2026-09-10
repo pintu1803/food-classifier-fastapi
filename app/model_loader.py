@@ -1,8 +1,13 @@
 from torchvision.models import resnet18
-from torchvision import transforms
+# from torchvision import transforms
 from app.utils import myLog
-import sys, os, torch
+import os
+# import sys
+import torch
 from app.config import PATH, IMAGE
+from gc import collect
+
+from psutil import Process
 
 model = None
 
@@ -42,11 +47,16 @@ def give_loaded_model():
         checkpoint = torch.load(best_model_load_path, map_location="cpu")
         model.load_state_dict(checkpoint)
         myLog("MODEL LOADED")
+
+        process = Process(os.getpid())
+        myLog(
+            f"RAM after model load: "
+            f"{process.memory_info().rss / 1024 / 1024:.2f} MB"
+        )
         #=====================================================
         #To save memory on render, delete checkpoint after dict loading
         del checkpoint
-        import gc
-        gc.collect()
+        collect()
 
         return model
 #=====================================================

@@ -1,6 +1,5 @@
 from app.model_loader import give_loaded_model
 import torch
-from PIL import Image
 import time
 from app.utils import preprocess, get_food_class
 

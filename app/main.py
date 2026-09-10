@@ -3,6 +3,7 @@ from app.schema import PredictionResponse
 from app.validators import validate_image, validate_size
 from PIL import UnidentifiedImageError, Image
 import io, os
+from psutil import Process
 import uuid
 from fastapi import Request
 from fastapi.concurrency import run_in_threadpool
@@ -25,6 +26,13 @@ def health():
         "status" : "healthy"
     }
 
+@app.get("/memory")
+def memory():
+    process = Process(os.getpid())
+    return {
+        "ram_mb": process.memory_info().rss / 1024 / 1024
+    }
+
 #=====================================
 ENV = os.getenv("ENV", "development")
 
@@ -37,7 +45,7 @@ else:
         "http://localhost:5173"
     ]
 
-print("Origin of the backend server : ", origins)
+print("Origin of the frontend server : ", origins)
 #======================================
 
 #add cors middleware to connect frontend with backend
