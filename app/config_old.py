@@ -17,7 +17,7 @@ class PATH:
     # DATASET_DIR: Path = BASE_DIR / "dataset"
     CHECKPOINT_PATH_FOR_LOAD: Path = CHECKPOINT_DIR / "resnet18_food_deploy.pth"
     CHECKPOINT_PATH_FOR_SAVE: Path = CHECKPOINT_DIR / "resnet18_food_deploy.pth"
-    ONNX_MODEL_PATH: Path = CHECKPOINT_DIR / "resnet18_food_deploy.onnx"
+    
     
 @dataclass
 class IMAGE:

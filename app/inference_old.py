@@ -1,6 +1,7 @@
-from app.model_loader import give_loaded_model
+from app.model_loader_old import give_loaded_model
+import torch
 import time
-from app.utils import preprocess, get_food_class, softmax, topk
+from app.utils_old import preprocess, get_food_class
 
 """
 1. Load the model only once on startup and store it in cache and use for all the inferences. 
@@ -12,18 +13,18 @@ from app.utils import preprocess, get_food_class, softmax, topk
 7. return the python dict, fast api will handle it
 """
 
-session = None
+model = None
 
 class ModelNotLoadedError(Exception):
     pass
 
 def ensure_model_load():
-    global session
+    global model
 
-    if session is None:
-        session = give_loaded_model()
+    if model is None:
+        model = give_loaded_model()
 
-    if session is None:
+    if model is None:
         raise ModelNotLoadedError("Checkpoint not found.")
 
 def print_latency(start, i):
@@ -41,22 +42,30 @@ def predict_image(pil_image, request_id):
     start = time.perf_counter()
 
     #2. preprocess the image
-    input_array = preprocess(pil_image)
+    image = preprocess(pil_image)
     print_latency(start, 2)
 
-    outputs = session.run(None, {"input": input_array})
-    logits = outputs[0][0]
-    print_latency(start, 4)
+    #3. add the extra dim for making a batch of size 1
+    image = torch.unsqueeze(input=image, dim=0)
+    print_latency(start, 3)
 
+    #4. feed input to model and get prediction
+    with torch.inference_mode():
+        pred = model(image)
+    print_latency(start, 4)
     #measure latency
     latency = (time.perf_counter() - start)*1000
 
+    #5. Squeeze the extra dim (batch dim) from pred.
+    pred = torch.squeeze(input=pred, dim=0)
+    print_latency(start, 5)
+
     #6. convert raw logits into probabilities
-    prob = softmax(logits)
+    prob = torch.softmax(input=pred, dim=0)
     print_latency(start, 6)
 
     #7.Fetch top K prob
-    topk_probs, topk_index = topk(prob, k=3)
+    topk_probs, topk_index = torch.topk(prob, k=3)
     print_latency(start, 7)
 
     #8. convert tensors to list
