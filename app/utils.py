@@ -1,4 +1,3 @@
-from torchvision import transforms
 from app.config import IMAGE
 import numpy as np
 from PIL import Image
