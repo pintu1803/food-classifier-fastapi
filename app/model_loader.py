@@ -3,12 +3,11 @@ from torchvision.models import resnet18
 from app.utils import myLog
 import os
 # import sys
-import torch
 from app.config import PATH, IMAGE
 from gc import collect
-
 from psutil import Process
-
+import torch
+torch.set_num_threads(1)
 model = None
 
 #=====================================================
